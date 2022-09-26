@@ -1,11 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-<title>Page Title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realtime location tracker</title>
+
+    <!-- leaflet css  -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
 </head>
+
 <body>
-
-https://www.google.com/maps/dir/Multi+Warna+Printing+(PT.+Grafika+Multi+Warna),+Jalan+Rawagelam+II,+RW.9,+Jatinegara,+Kota+Jakarta+Timur,+Daerah+Khusus+Ibukota+Jakarta/STP+Pulogadung,+Jl.+Pulogadung+No.2,+RW.3,+Rw.+Terate,+Kec.+Cakung,+Kota+Jakarta+Timur,+Daerah+Khusus+Ibukota+Jakarta+13920/PT+Enseval+Putera+Megatrading+Tbk,+Jalan+Pulo+Lentut,+RW.3,+Rawa+Terate,+Kota+Jakarta+Timur,+Daerah+Khusus+Ibukota+Jakarta/PT.+DNP+Indonesia,+RW.9,+Jatinegara,+Kota+Jakarta+Timur,+Daerah+Khusus+Ibukota+Jakarta/PT+Akebono+Brake+Astra+Indonesia,+Jalan+Pegangsaan+Dua,+Kecamatan,+Kota+Jakarta+Utara,+Daerah+Khusus+Ibukota+Jakarta/@-6.1835053,106.9001748,15.5z/am=t/data=!4m32!4m31!1m5!1m1!1s0x2e69f4b4e3a2a797:0x6e05c6d03c3c5e7e!2m2!1d106.9117872!2d-6.198386!1m5!1m1!1s0x2e698b3214d1270f:0x23d6f8a2849c9e5b!2m2!1d106.9171877!2d-6.1844744!1m5!1m1!1s0x2e698b4d026e9417:0x1fc67527c74ee926!2m2!1d106.9119443!2d-6.1902585!1m5!1m1!1s0x2e698b4a373aaa41:0x2cce31904bbffd82!2m2!1d106.9170362!2d-6.1955029!1m5!1m1!1s0x2e698b296300caab:0x506e684affecaa08!2m2!1d106.9183402!2d-6.1764963!3e2
-
+    <div id="map"></div>
 </body>
 </html>
+
+<!-- leaflet js  -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+    // Map initialization 
+    var map = L.map('map').setView([14.0860746, 100.608406], 6);
+
+    //osm layer
+    var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+    osm.addTo(map);
+
+    if(!navigator.geolocation) {
+        console.log("Your browser doesn't support geolocation feature!")
+    } else {
+        setInterval(() => {
+            navigator.geolocation.getCurrentPosition(getPosition)
+        }, 5000);
+    }
+
+    var marker, circle;
+
+    function getPosition(position){
+        // console.log(position)
+        var lat = position.coords.latitude
+        var long = position.coords.longitude
+        var accuracy = position.coords.accuracy
+
+        if(marker) {
+            map.removeLayer(marker)
+        }
+
+        if(circle) {
+            map.removeLayer(circle)
+        }
+
+        marker = L.marker([lat, long])
+        circle = L.circle([lat, long], {radius: accuracy})
+
+        var featureGroup = L.featureGroup([marker, circle]).addTo(map)
+
+        map.fitBounds(featureGroup.getBounds())
+
+        console.log("Your coordinate is: Lat: "+ lat +" Long: "+ long+ " Accuracy: "+ accuracy)
+    }
+
+</script>
